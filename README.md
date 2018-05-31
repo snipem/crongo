@@ -2,6 +2,12 @@
 
 A basic wrapper for cron
 
+## Usage
+
+    crongo run "ls -al | grep something"
+
+Outcome of this call will be stored in the sqlite database under `$HOME/crongo.db`.
+
 ## Cross compilation
 
     $ GOOS=linux GOARCH=amd64 go build
