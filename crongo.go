@@ -9,8 +9,10 @@ import (
 	"os"
 	"os/exec"
 	"sort"
+	"strconv"
 	"syscall"
 
+	"github.com/fatih/color"
 	"github.com/gosuri/uitable"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/urfave/cli"
@@ -74,7 +76,15 @@ func printCommands(commands []command) {
 
 	table.AddRow("CODE", "DATE", "CMD", "STDOUT", "STDERR")
 	for _, command := range commands {
-		table.AddRow(command.errorCode, command.date, command.cmd, command.stdout, command.stderr)
+		var statusDot string
+		if command.errorCode == 0 {
+			statusDot = color.GreenString("◉")
+		} else {
+			statusDot = color.RedString("◉")
+		}
+
+		statusLine := statusDot + " " + strconv.Itoa(command.errorCode)
+		table.AddRow(statusLine, command.date, command.cmd, command.stdout, command.stderr)
 	}
 	fmt.Println(table)
 }
