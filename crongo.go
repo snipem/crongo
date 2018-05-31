@@ -72,9 +72,9 @@ func printCommands(commands []command) {
 	table := uitable.New()
 	table.MaxColWidth = 50
 
-	table.AddRow("CODE", "CMD", "STDOUT", "STDERR")
+	table.AddRow("CODE", "DATE", "CMD", "STDOUT", "STDERR")
 	for _, command := range commands {
-		table.AddRow(command.errorCode, command.cmd, command.stdout, command.stderr)
+		table.AddRow(command.errorCode, command.date, command.cmd, command.stdout, command.stderr)
 	}
 	fmt.Println(table)
 }
