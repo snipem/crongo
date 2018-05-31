@@ -11,9 +11,21 @@ import (
 	"sort"
 	"syscall"
 
+	"github.com/gosuri/uitable"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/urfave/cli"
 )
+
+var dbFile = os.Getenv("HOME") + "/crongo.db"
+
+type command struct {
+	id        int
+	cmd       string
+	date      string
+	stdout    string
+	stderr    string
+	errorCode int
+}
 
 func runCommand(name string, args ...string) (stdout string, stderr string, exitCode int) {
 	var outbuf, errbuf bytes.Buffer
@@ -43,9 +55,53 @@ func runCommand(name string, args ...string) (stdout string, stderr string, exit
 	return
 }
 
+func listAllRuns() {
+	stmt := "select * from commands"
+	commands := runStatement(stmt)
+	printCommands(commands)
+}
+
+func listAllFailedRuns() {
+	stmt := "select * from commands where error_code is not 0"
+	commands := runStatement(stmt)
+	printCommands(commands)
+}
+
+func printCommands(commands []command) {
+
+	table := uitable.New()
+	table.MaxColWidth = 50
+
+	table.AddRow("CODE", "CMD", "STDOUT", "STDERR")
+	for _, command := range commands {
+		table.AddRow(command.errorCode, command.cmd, command.stdout, command.stderr)
+	}
+	fmt.Println(table)
+}
+
+func runStatement(stmt string) []command {
+
+	var commands []command
+
+	database, err := sql.Open("sqlite3", dbFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+	rows, err := database.Query(stmt)
+
+	for rows.Next() {
+		var c command
+		err = rows.Scan(&c.id, &c.date, &c.cmd, &c.stdout, &c.stderr, &c.errorCode)
+		if err != nil {
+			log.Fatal(err)
+		}
+		commands = append(commands, c)
+	}
+	return commands
+}
+
 func writeToDb(stdout string, stderr string, cmd string, errorCode int) {
 
-	dbFile := os.Getenv("HOME") + "/crongo.db"
 	log.Println("Accessing db in %s", dbFile)
 
 	database, err := sql.Open("sqlite3", dbFile)
@@ -97,6 +153,29 @@ func main() {
 
 				// reflect exit code
 				return cli.NewExitError("", exitCode)
+			},
+		},
+		{
+			Name:    "list",
+			Aliases: []string{"l"},
+			Usage:   "list runs",
+			Subcommands: []cli.Command{
+				{
+					Name:  "all",
+					Usage: "list all runs",
+					Action: func(c *cli.Context) error {
+						listAllRuns()
+						return nil
+					},
+				},
+				{
+					Name:  "failed",
+					Usage: "list all failed runs",
+					Action: func(c *cli.Context) error {
+						listAllFailedRuns()
+						return nil
+					},
+				},
 			},
 		},
 	}
