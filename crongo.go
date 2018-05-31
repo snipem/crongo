@@ -10,6 +10,7 @@ import (
 	"os/exec"
 	"sort"
 	"strconv"
+	"strings"
 	"syscall"
 
 	"github.com/fatih/color"
@@ -73,20 +74,21 @@ func printCommands(commands []command) {
 
 	table := uitable.New()
 	table.MaxColWidth = 50
+	statusDot := "◉"
 
 	table.AddRow("CODE", "DATE", "CMD", "STDOUT", "STDERR")
 	for _, command := range commands {
-		var statusDot string
-		if command.errorCode == 0 {
-			statusDot = color.GreenString("◉")
-		} else {
-			statusDot = color.RedString("◉")
-		}
-
 		statusLine := statusDot + " " + strconv.Itoa(command.errorCode)
 		table.AddRow(statusLine, command.date, command.cmd, command.stdout, command.stderr)
 	}
-	fmt.Println(table)
+
+	// Workaround: uitable counts non printable characters like colors, therefore garbeling the width of the table
+	// paint all status codes red
+	out := strings.Replace(table.String(), statusDot, color.RedString(statusDot), -1)
+	// paint all red status codes with a follow up zero green
+	out = strings.Replace(out, color.RedString(statusDot)+" 0", color.GreenString(statusDot)+" 0", -1)
+
+	fmt.Println(out)
 }
 
 func runStatement(stmt string) []command {
