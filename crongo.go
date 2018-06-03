@@ -31,32 +31,32 @@ type command struct {
 	errorCode int
 }
 
-func runCommand(name string, args ...string) (stdout string, stderr string, exitCode int) {
+func runCommand(name string, args ...string) (c command) {
 	var outbuf, errbuf bytes.Buffer
 	cmd := exec.Command(name, args...)
 	cmd.Stdout = &outbuf
 	cmd.Stderr = &errbuf
 
 	err := cmd.Run()
-	stdout = outbuf.String()
-	stderr = errbuf.String()
+	c.stdout = outbuf.String()
+	c.stderr = errbuf.String()
 
 	if err != nil {
 		if exitError, ok := err.(*exec.ExitError); ok {
 			ws := exitError.Sys().(syscall.WaitStatus)
-			exitCode = ws.ExitStatus()
+			c.errorCode = ws.ExitStatus()
 		} else {
 			// Workaround for Mac
-			exitCode = 1
-			if stderr == "" {
-				stderr = err.Error()
+			c.errorCode = 1
+			if c.stderr == "" {
+				c.stderr = err.Error()
 			}
 		}
 	} else {
 		ws := cmd.ProcessState.Sys().(syscall.WaitStatus)
-		exitCode = ws.ExitStatus()
+		c.errorCode = ws.ExitStatus()
 	}
-	return
+	return c
 }
 
 func listAllRuns(limit int) {
@@ -77,10 +77,10 @@ func printCommands(commands []command) {
 	table.MaxColWidth = 50
 	statusDot := "◉"
 
-	table.AddRow("CODE", "DATE", "CMD", "STDOUT", "STDERR")
+	table.AddRow("CODE", "ID", "DATE", "CMD", "STDOUT", "STDERR")
 	for _, command := range commands {
 		statusLine := statusDot + " " + strconv.Itoa(command.errorCode)
-		table.AddRow(statusLine, command.date.In(time.Local), command.cmd, command.stdout, command.stderr)
+		table.AddRow(statusLine, command.id, command.date.In(time.Local), command.cmd, command.stdout, command.stderr)
 	}
 
 	// Workaround: uitable counts non printable characters like colors, therefore garbeling the width of the table
@@ -113,7 +113,7 @@ func runStatement(stmt string) []command {
 	return commands
 }
 
-func writeToDb(stdout string, stderr string, cmd string, errorCode int) {
+func writeToDb(c command) {
 
 	log.Println("Accessing db in %s", dbFile)
 
@@ -127,7 +127,7 @@ func writeToDb(stdout string, stderr string, cmd string, errorCode int) {
 	}
 	statement.Exec()
 	statement, err = database.Prepare("INSERT INTO commands (cmd, stdout, stderr, error_code) VALUES (?, ?, ?, ?)")
-	statement.Exec(cmd, stdout, stderr, errorCode)
+	statement.Exec(c.cmd, c.stdout, c.stderr, c.errorCode)
 }
 
 func runCommandAndStoreIntoDatabase(cmd string) (exitCode int) {
@@ -135,13 +135,21 @@ func runCommandAndStoreIntoDatabase(cmd string) (exitCode int) {
 	bash := "bash"
 	args := []string{"-c", cmd}
 
-	stdout, stderr, exitCode := runCommand(bash, args...)
-	writeToDb(stdout, stderr, cmd, exitCode)
-
-	fmt.Printf("stdout:\n%v\nstderr:\n%v\nexit_code: %v", stdout, stderr, exitCode)
+	c := runCommand(bash, args...)
+	writeToDb(c)
+	prettyPrintCommand(c)
 
 	return exitCode
 
+}
+
+func prettyPrintCommand(c command) {
+	fmt.Printf("stdout:\n%v\nstderr:\n%v\nexit_code: %v", c.stdout, c.stderr, c.errorCode)
+}
+
+func getCommandInfoFromDatabase(id int) {
+	c := runStatement("select * from commands where id = " + fmt.Sprint(id))
+	prettyPrintCommand(c[0])
 }
 
 func getLimit(c *cli.Context) (limit int) {
@@ -203,6 +211,25 @@ func main() {
 						return nil
 					},
 				},
+			},
+		},
+		{
+			Name:      "id",
+			Aliases:   []string{"i"},
+			Usage:     "get info about command in database",
+			ArgsUsage: "id of command",
+			Action: func(c *cli.Context) error {
+				if !c.IsSet("log") {
+					// Don't log anything
+					log.SetOutput(ioutil.Discard)
+				}
+
+				if len(c.Args()) != 1 {
+					return cli.NewExitError("Command missing", 1)
+				}
+				id, _ := strconv.Atoi(c.Args().Get(0))
+				getCommandInfoFromDatabase(id)
+				return nil
 			},
 		},
 	}
