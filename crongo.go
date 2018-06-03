@@ -58,14 +58,14 @@ func runCommand(name string, args ...string) (stdout string, stderr string, exit
 	return
 }
 
-func listAllRuns() {
-	stmt := "select * from commands"
+func listAllRuns(limit int) {
+	stmt := "select * from (select * from commands order by id DESC limit " + fmt.Sprint(limit) + ") order by id ASC"
 	commands := runStatement(stmt)
 	printCommands(commands)
 }
 
-func listAllFailedRuns() {
-	stmt := "select * from commands where error_code is not 0"
+func listAllFailedRuns(limit int) {
+	stmt := "select * from (select * from commands order by id DESC limit " + fmt.Sprint(limit) + ") where error_code is not 0 order by id ASC"
 	commands := runStatement(stmt)
 	printCommands(commands)
 }
@@ -143,6 +143,19 @@ func runCommandAndStoreIntoDatabase(cmd string) (exitCode int) {
 
 }
 
+func getLimit(c *cli.Context) (limit int) {
+
+	if len(c.Args()) != 1 {
+		return 500
+	} else {
+		limit, err := strconv.Atoi(c.Args().First())
+		if err != nil {
+			log.Fatal(err)
+		}
+		return limit
+	}
+}
+
 func main() {
 	app := cli.NewApp()
 
@@ -176,7 +189,8 @@ func main() {
 					Name:  "all",
 					Usage: "list all runs",
 					Action: func(c *cli.Context) error {
-						listAllRuns()
+
+						listAllRuns(getLimit(c))
 						return nil
 					},
 				},
@@ -184,7 +198,7 @@ func main() {
 					Name:  "failed",
 					Usage: "list all failed runs",
 					Action: func(c *cli.Context) error {
-						listAllFailedRuns()
+						listAllFailedRuns(getLimit(c))
 						return nil
 					},
 				},
