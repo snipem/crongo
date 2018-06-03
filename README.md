@@ -4,21 +4,36 @@ A basic wrapper for cron
 
 ## Usage
 
+### Run
+
     crongo run "ls -al | grep something"
 
 Outcome of this call will be stored in the sqlite database under `$HOME/crongo.db`.
+
+### List
 
     crongo list all
 
 Will display all runs like:
 
-    CODE	DATE                	CMD                                               	STDOUT                                            	STDERR                                            
-    ◉ 1 	2018-06-03T13:40:13Z	eintracht_transfers.py                            	Safely quitted webdriver                          	Traceback (most recent call last):                
-                                                                                                                                            File "/home...                                  
-    ◉ 0 	2018-06-03T13:45:02Z	/home/matze/bin/bikewatch.sh                      	                                                  	                                                  
-    ◉ 0 	2018-06-03T13:45:04Z	temp_watch                                        	2018-06-03T13:45+0000,25.0                        	                                     
+    CODE 	ID	DATE                          	CMD                    	STDOUT                                            	STDERR
+    ◉ 0  	1 	2018-05-30 21:29:45 +0200 CEST	uptime                 	21:29  up 5 days,  3:10, 8 users, load averages...
+    ◉ 0  	2 	2018-05-30 22:02:16 +0200 CEST	uptime                 	22:01  up 5 days,  3:42, 8 users, load averages...
+    ◉ 0  	3 	2018-05-31 10:07:26 +0200 CEST	uptime                 	10:07  up 5 days, 15:48, 7 users, load averages...
+    ◉ 0  	4 	2018-05-31 11:14:12 +0200 CEST	uptime                 	11:13  up 5 days, 16:54, 7 users, load averages...
+    ◉ 0  	5 	2018-05-31 11:14:59 +0200 CEST	ls                     	README.md
+                                                                        beatle
+                                                                        commute-tube.log
+                                                                        crongo.db
+                                                                        crongo....
 
 For only showing failed runs `crongo list failed` may be used. By default the number of displayed commands is 500. This can be overwritten by using `crongo list all 1000` or `crongo list failed 10` respectively.
+
+### Details
+
+For getting the whole stdout and stderr you can run
+
+    crongo id 5
 
 ## Cross compilation
 
