@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"strings"
 	"syscall"
+	"time"
 
 	"github.com/fatih/color"
 	"github.com/gosuri/uitable"
@@ -24,7 +25,7 @@ var dbFile = os.Getenv("HOME") + "/crongo.db"
 type command struct {
 	id        int
 	cmd       string
-	date      string
+	date      *time.Time
 	stdout    string
 	stderr    string
 	errorCode int
@@ -79,7 +80,7 @@ func printCommands(commands []command) {
 	table.AddRow("CODE", "DATE", "CMD", "STDOUT", "STDERR")
 	for _, command := range commands {
 		statusLine := statusDot + " " + strconv.Itoa(command.errorCode)
-		table.AddRow(statusLine, command.date, command.cmd, command.stdout, command.stderr)
+		table.AddRow(statusLine, command.date.In(time.Local), command.cmd, command.stdout, command.stderr)
 	}
 
 	// Workaround: uitable counts non printable characters like colors, therefore garbeling the width of the table
