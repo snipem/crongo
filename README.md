@@ -12,6 +12,7 @@ Outcome of this call will be stored in the sqlite database under `$HOME/crongo.d
 
 Will display all runs like:
 
+    CODE	DATE                	CMD                                               	STDOUT                                            	STDERR                                            
     ◉ 1 	2018-06-03T13:40:13Z	eintracht_transfers.py                            	Safely quitted webdriver                          	Traceback (most recent call last):                
                                                                                                                                             File "/home...                                  
     ◉ 0 	2018-06-03T13:45:02Z	/home/matze/bin/bikewatch.sh                      	                                                  	                                                  
