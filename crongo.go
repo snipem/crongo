@@ -236,8 +236,8 @@ func main() {
 
 	app.Flags = []cli.Flag{
 		cli.BoolFlag{
-			Name:  "log",
-			Usage: "print log",
+			Name:  "debug",
+			Usage: "print debug log",
 		},
 	}
 	sort.Sort(cli.FlagsByName(app.Flags))
