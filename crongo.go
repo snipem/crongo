@@ -152,6 +152,20 @@ func getCommandInfoFromDatabase(id int) {
 	prettyPrintCommand(c[0])
 }
 
+func purgeDatabase(numberOfEntriesToKeep int) {
+	runStatement(`
+	DELETE FROM "commands"
+	WHERE id NOT IN (
+	  SELECT id
+	  FROM (
+		SELECT id
+		FROM "commands"
+		ORDER BY id DESC
+		LIMIT ` + strconv.Itoa(numberOfEntriesToKeep) + `
+	  ) purge
+	);`)
+}
+
 func getLimit(c *cli.Context) (limit int) {
 
 	if len(c.Args()) != 1 {
@@ -229,6 +243,23 @@ func main() {
 				}
 				id, _ := strconv.Atoi(c.Args().Get(0))
 				getCommandInfoFromDatabase(id)
+				return nil
+			},
+		},
+		{
+			Name:      "purge",
+			Aliases:   []string{"p"},
+			Usage:     "purge all entries except the newest, default 100",
+			ArgsUsage: "entries to purge",
+			Action: func(c *cli.Context) error {
+
+				if len(c.Args()) != 1 {
+					purgeDatabase(100)
+				} else if numberOfEntriesToKeep, err := strconv.Atoi(c.Args().Get(0)); err == nil {
+					purgeDatabase(numberOfEntriesToKeep)
+				} else {
+					cli.NewExitError("Number of commands to keep", 1)
+				}
 				return nil
 			},
 		},
