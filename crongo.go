@@ -136,6 +136,7 @@ func runCommandAndStoreIntoDatabase(cmd string) (exitCode int) {
 	args := []string{"-c", cmd}
 
 	c := runCommand(bash, args...)
+	c.cmd = cmd
 	writeToDb(c)
 	prettyPrintCommand(c)
 
