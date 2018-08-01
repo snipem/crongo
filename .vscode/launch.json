@@ -72,6 +72,22 @@
             "env": {},
             "args": [],
             "showLog": true
-        }
+        },
+        {
+            "name": "Purge default",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${file}",
+            "args": ["purge"],
+        },
+        {
+            "name": "Purge 5",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${file}",
+            "args": ["purge", "5"],
+        },
     ]
 }
