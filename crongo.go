@@ -182,6 +182,7 @@ func getLimit(c *cli.Context) (limit int) {
 
 func main() {
 	app := cli.NewApp()
+	app.Version = "0.2"
 
 	app.Commands = []cli.Command{
 		{
