@@ -165,6 +165,8 @@ func purgeDatabase(numberOfEntriesToKeep int) {
 		LIMIT ` + strconv.Itoa(numberOfEntriesToKeep) + `
 	  ) purge
 	);`)
+	// Actually release occupied space
+	runStatement("vacuum")
 }
 
 func getLimit(c *cli.Context) (limit int) {
@@ -182,7 +184,7 @@ func getLimit(c *cli.Context) (limit int) {
 
 func main() {
 	app := cli.NewApp()
-	app.Version = "0.2"
+	app.Version = "0.2.1"
 
 	app.Commands = []cli.Command{
 		{
