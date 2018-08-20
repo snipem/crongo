@@ -148,9 +148,13 @@ func prettyPrintCommand(c command) {
 	fmt.Printf("stdout:\n%v\nstderr:\n%v\nexit_code: %v", c.stdout, c.stderr, c.errorCode)
 }
 
-func getCommandInfoFromDatabase(id int) {
+func getCommandInfoFromDatabase(id int) error {
 	c := runStatement("select * from commands where id = " + fmt.Sprint(id))
+	if len(c) > 0 {
 	prettyPrintCommand(c[0])
+		return nil
+	}
+	return fmt.Errorf("Command with id %s not found", strconv.Itoa(id))
 }
 
 func purgeDatabase(numberOfEntriesToKeep int) {
@@ -246,7 +250,10 @@ func main() {
 					return cli.NewExitError("Command missing", 1)
 				}
 				id, _ := strconv.Atoi(c.Args().Get(0))
-				getCommandInfoFromDatabase(id)
+				err := getCommandInfoFromDatabase(id)
+				if err != nil {
+					return cli.NewExitError(err.Error(), 1)
+				}
 				return nil
 			},
 		},
