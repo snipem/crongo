@@ -59,20 +59,22 @@ func runCommand(name string, args ...string) (c command) {
 	return c
 }
 
-func listAllRuns(limit int) {
-	stmt := "select * from (select * from commands order by id DESC limit " + fmt.Sprint(limit) + ") order by id ASC"
+func listAllRuns(limit int, filter string) {
+	filterAppendix := ""
+	if filter != "" {
+		filterAppendix = "where cmd like '%" + filter + "%'"
+	}
+	stmt := "select * from commands " + filterAppendix + " order by id DESC limit " + fmt.Sprint(limit) + ""
 	commands := runStatement(stmt)
 	printCommands(commands)
 }
 
-func listAllRunsWithFilter(limit int, filter string) {
-	stmt := "select * from (select * from commands order by id DESC limit " + fmt.Sprint(limit) + ") where cmd like '%" + filter + "%' order by id ASC"
-	commands := runStatement(stmt)
-	printCommands(commands)
-}
-
-func listAllFailedRuns(limit int) {
-	stmt := "select * from (select * from commands order by id DESC limit " + fmt.Sprint(limit) + ") where error_code is not 0 order by id ASC"
+func listAllFailedRuns(limit int, filter string) {
+	filterAppendix := ""
+	if filter != "" {
+		filterAppendix = "where cmd like '%" + filter + "%'"
+	}
+	stmt := "select * from commands " + filterAppendix + " order by id DESC limit " + fmt.Sprint(limit) + ""
 	commands := runStatement(stmt)
 	printCommands(commands)
 }
@@ -184,6 +186,7 @@ func main() {
 	app.Version = "0.2.2"
 
 	var limit int
+	var filter string
 
 	app.Commands = []cli.Command{
 		{
@@ -216,7 +219,7 @@ func main() {
 					Usage: "list all runs",
 					Action: func(c *cli.Context) error {
 
-						listAllRuns(limit)
+						listAllRuns(limit, filter)
 						return nil
 					},
 					Flags: []cli.Flag{
@@ -226,13 +229,18 @@ func main() {
 							Usage:       "limit number of results",
 							Destination: &limit,
 						},
+						cli.StringFlag{
+							Name:        "filter",
+							Usage:       "filter for command",
+							Destination: &filter,
+						},
 					},
 				},
 				{
 					Name:  "failed",
 					Usage: "list all failed runs",
 					Action: func(c *cli.Context) error {
-						listAllFailedRuns(limit)
+						listAllFailedRuns(limit, filter)
 						return nil
 					},
 					Flags: []cli.Flag{
@@ -241,6 +249,11 @@ func main() {
 							Value:       500,
 							Usage:       "limit number of results",
 							Destination: &limit,
+						},
+						cli.StringFlag{
+							Name:        "filter",
+							Usage:       "filter for command",
+							Destination: &filter,
 						},
 					},
 				},
