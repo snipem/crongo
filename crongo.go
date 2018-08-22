@@ -64,7 +64,7 @@ func listAllRuns(limit int, filter string) {
 	if filter != "" {
 		filterAppendix = "where cmd like '%" + filter + "%'"
 	}
-	stmt := "select * from commands " + filterAppendix + " order by id DESC limit " + fmt.Sprint(limit) + ""
+	stmt := "select * from (select * from commands order by id DESC)  " + filterAppendix + " order by id DESC limit " + fmt.Sprint(limit) + ""
 	commands := runStatement(stmt)
 	printCommands(commands)
 }
@@ -74,7 +74,7 @@ func listAllFailedRuns(limit int, filter string) {
 	if filter != "" {
 		filterAppendix = "where cmd like '%" + filter + "%'"
 	}
-	stmt := "select * from commands " + filterAppendix + " order by id DESC limit " + fmt.Sprint(limit) + ""
+	stmt := "select * from (select * from commands order by id DESC)  " + filterAppendix + " order by id DESC limit " + fmt.Sprint(limit) + ""
 	commands := runStatement(stmt)
 	printCommands(commands)
 }
