@@ -115,7 +115,7 @@ func runStatement(stmt string) []command {
 
 func writeToDb(c command) {
 
-	log.Println("Accessing db in %s", dbFile)
+	log.Printf("Accessing db in %s", dbFile)
 
 	database, err := sql.Open("sqlite3", dbFile)
 	if err != nil {
@@ -151,7 +151,7 @@ func prettyPrintCommand(c command) {
 func getCommandInfoFromDatabase(id int) error {
 	c := runStatement("select * from commands where id = " + fmt.Sprint(id))
 	if len(c) > 0 {
-	prettyPrintCommand(c[0])
+		prettyPrintCommand(c[0])
 		return nil
 	}
 	return fmt.Errorf("Command with id %s not found", strconv.Itoa(id))
@@ -177,13 +177,13 @@ func getLimit(c *cli.Context) (limit int) {
 
 	if len(c.Args()) != 1 {
 		return 500
-	} else {
-		limit, err := strconv.Atoi(c.Args().First())
-		if err != nil {
-			log.Fatal(err)
-		}
-		return limit
 	}
+
+	limit, err := strconv.Atoi(c.Args().First())
+	if err != nil {
+		log.Fatal(err)
+	}
+	return limit
 }
 
 func main() {
