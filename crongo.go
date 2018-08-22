@@ -65,6 +65,12 @@ func listAllRuns(limit int) {
 	printCommands(commands)
 }
 
+func listAllRunsWithFilter(limit int, filter string) {
+	stmt := "select * from (select * from commands order by id DESC limit " + fmt.Sprint(limit) + ") where cmd like '%" + filter + "%' order by id ASC"
+	commands := runStatement(stmt)
+	printCommands(commands)
+}
+
 func listAllFailedRuns(limit int) {
 	stmt := "select * from (select * from commands order by id DESC limit " + fmt.Sprint(limit) + ") where error_code is not 0 order by id ASC"
 	commands := runStatement(stmt)
@@ -151,7 +157,7 @@ func prettyPrintCommand(c command) {
 func getCommandInfoFromDatabase(id int) error {
 	c := runStatement("select * from commands where id = " + fmt.Sprint(id))
 	if len(c) > 0 {
-	prettyPrintCommand(c[0])
+		prettyPrintCommand(c[0])
 		return nil
 	}
 	return fmt.Errorf("Command with id %s not found", strconv.Itoa(id))
@@ -173,22 +179,11 @@ func purgeDatabase(numberOfEntriesToKeep int) {
 	runStatement("vacuum")
 }
 
-func getLimit(c *cli.Context) (limit int) {
-
-	if len(c.Args()) != 1 {
-		return 500
-	} else {
-		limit, err := strconv.Atoi(c.Args().First())
-		if err != nil {
-			log.Fatal(err)
-		}
-		return limit
-	}
-}
-
 func main() {
 	app := cli.NewApp()
 	app.Version = "0.2.2"
+
+	var limit int
 
 	app.Commands = []cli.Command{
 		{
@@ -221,16 +216,32 @@ func main() {
 					Usage: "list all runs",
 					Action: func(c *cli.Context) error {
 
-						listAllRuns(getLimit(c))
+						listAllRuns(limit)
 						return nil
+					},
+					Flags: []cli.Flag{
+						cli.IntFlag{
+							Name:        "limit",
+							Value:       500,
+							Usage:       "limit number of results",
+							Destination: &limit,
+						},
 					},
 				},
 				{
 					Name:  "failed",
 					Usage: "list all failed runs",
 					Action: func(c *cli.Context) error {
-						listAllFailedRuns(getLimit(c))
+						listAllFailedRuns(limit)
 						return nil
+					},
+					Flags: []cli.Flag{
+						cli.IntFlag{
+							Name:        "limit",
+							Value:       500,
+							Usage:       "limit number of results",
+							Destination: &limit,
+						},
 					},
 				},
 			},
