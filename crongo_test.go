@@ -1,14 +1,21 @@
 package main
 
 import (
+	"log"
 	"reflect"
 	"testing"
+	"time"
 
 	_ "github.com/mattn/go-sqlite3"
 )
 
 func Test_listAllRuns(t *testing.T) {
 	dbFile = "test/crongo.db"
+
+	randomDate, err := time.Parse("2006-01-02 15:04:05", "2018-08-23 07:00:00")
+	if err != nil {
+		log.Fatalf("Error converting random date %s", err)
+	}
 
 	type args struct {
 		limit  int
@@ -21,14 +28,22 @@ func Test_listAllRuns(t *testing.T) {
 	}{
 		{
 			name: "Limit 1",
-			args: args{filter: "", limit: 1},
+			args: args{filter: "", limit: 2},
 			want: []command{
 				{
 					id:        1,
 					cmd:       "first",
-					date:      nil,
+					date:      &randomDate,
 					stdout:    "stdout first",
 					stderr:    "stderr first",
+					errorCode: 1,
+				},
+				{
+					id:        2,
+					cmd:       "second",
+					date:      &randomDate,
+					stdout:    "stdout second",
+					stderr:    "stderr second",
 					errorCode: 1,
 				},
 			},

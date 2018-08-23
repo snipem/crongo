@@ -37,6 +37,14 @@
             "args": ["list", "all"],
         },
         {
+            "name": "Launch list all with filter",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${file}",
+            "args": ["list", "all", "--filter", "commute"],
+        },
+        {
             "name": "Launch list failed",
             "type": "go",
             "request": "launch",
