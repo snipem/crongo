@@ -59,24 +59,22 @@ func runCommand(name string, args ...string) (c command) {
 	return c
 }
 
-func listAllRuns(limit int, filter string) {
+func listAllRuns(limit int, filter string) []command {
 	filterAppendix := ""
 	if filter != "" {
 		filterAppendix = "where cmd like '%" + filter + "%'"
 	}
 	stmt := "select * from (select * from commands order by id DESC)  " + filterAppendix + " order by id DESC limit " + fmt.Sprint(limit) + ""
-	commands := runStatement(stmt)
-	printCommands(commands)
+	return runStatement(stmt)
 }
 
-func listAllFailedRuns(limit int, filter string) {
+func listAllFailedRuns(limit int, filter string) []command {
 	filterAppendix := ""
 	if filter != "" {
 		filterAppendix = "where cmd like '%" + filter + "%'"
 	}
 	stmt := "select * from (select * from commands order by id DESC)  " + filterAppendix + " order by id DESC limit " + fmt.Sprint(limit) + ""
-	commands := runStatement(stmt)
-	printCommands(commands)
+	return runStatement(stmt)
 }
 
 func printCommands(commands []command) {
@@ -219,7 +217,7 @@ func main() {
 					Usage: "list all runs",
 					Action: func(c *cli.Context) error {
 
-						listAllRuns(limit, filter)
+						printCommands(listAllRuns(limit, filter))
 						return nil
 					},
 					Flags: []cli.Flag{
@@ -240,7 +238,7 @@ func main() {
 					Name:  "failed",
 					Usage: "list all failed runs",
 					Action: func(c *cli.Context) error {
-						listAllFailedRuns(limit, filter)
+						printCommands(listAllFailedRuns(limit, filter))
 						return nil
 					},
 					Flags: []cli.Flag{
