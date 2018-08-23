@@ -183,7 +183,7 @@ func purgeDatabase(numberOfEntriesToKeep int) {
 
 func main() {
 	app := cli.NewApp()
-	app.Version = "0.3.1"
+	app.Version = "0.3.2"
 
 	var limit int
 	var filter string
