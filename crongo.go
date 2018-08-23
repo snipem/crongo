@@ -31,7 +31,11 @@ type command struct {
 	errorCode int
 }
 
-func runCommand(name string, args ...string) (c command) {
+func runCommand(command string) (c command) {
+
+	name := "bash"
+	args := []string{"-c", command}
+
 	var outbuf, errbuf bytes.Buffer
 	cmd := exec.Command(name, args...)
 	cmd.Stdout = &outbuf
@@ -56,6 +60,7 @@ func runCommand(name string, args ...string) (c command) {
 		ws := cmd.ProcessState.Sys().(syscall.WaitStatus)
 		c.errorCode = ws.ExitStatus()
 	}
+	c.cmd = command
 	return c
 }
 
@@ -71,9 +76,9 @@ func listAllRuns(limit int, filter string) []command {
 func listAllFailedRuns(limit int, filter string) []command {
 	filterAppendix := ""
 	if filter != "" {
-		filterAppendix = "where cmd like '%" + filter + "%'"
+		filterAppendix = "and cmd like '%" + filter + "%'"
 	}
-	stmt := "select * from (select * from commands order by id DESC)  " + filterAppendix + " order by id ASC limit " + fmt.Sprint(limit) + ""
+	stmt := "select * from (select * from commands order by id DESC) where error_code > 0 " + filterAppendix + " order by id ASC limit " + fmt.Sprint(limit) + ""
 	return runStatement(stmt)
 }
 
@@ -138,15 +143,12 @@ func writeToDb(c command) {
 
 func runCommandAndStoreIntoDatabase(cmd string) (exitCode int) {
 
-	bash := "bash"
-	args := []string{"-c", cmd}
+	c := runCommand(cmd)
 
-	c := runCommand(bash, args...)
-	c.cmd = cmd
 	writeToDb(c)
 	prettyPrintCommand(c)
 
-	return exitCode
+	return c.errorCode
 
 }
 

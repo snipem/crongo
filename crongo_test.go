@@ -36,7 +36,7 @@ func Test_listAllRuns(t *testing.T) {
 					date:      &randomDate,
 					stdout:    "stdout first",
 					stderr:    "stderr first",
-					errorCode: 0,
+					errorCode: 1,
 				},
 				{
 					id:        2,
@@ -106,3 +106,15 @@ func Test_listAllFailedRuns(t *testing.T) {
 		})
 	}
 }
+
+func Test_runCommand(t *testing.T) {
+
+	command := runCommand("echo -n test")
+	if !(command.cmd == "echo -n test" && command.stdout == "test" && command.errorCode >= 0 && command.id >= 0) {
+		t.Errorf("runCommand() = is not valid: %v", command)
+	}
+
+}
+
+// [{1 first 0xc4200b25a0 stdout first stderr first 1} {2 second 0xc4200b2660 stdout second stderr second 1} {3 second 0xc4200b2720 stdout second stderr second 0}], want
+// [{1 first 0xc4200b2400 stdout first stderr first 1} {2 second 0xc4200b2400 stdout second stderr second 1}]
