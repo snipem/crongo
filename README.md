@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.org/snipem/web-to-feed.svg?branch=master)](https://travis-ci.org/snipem/web-to-feed)
 [![Coverage Status](https://coveralls.io/repos/github/snipem/crongo/badge.svg?branch=master)](https://coveralls.io/github/snipem/crongo?branch=master)
+[![Go Report Card](https://goreportcard.com/badge/github.com/snipem/crongo)](https://goreportcard.com/report/github.com/snipem/crongo)
 
 A basic wrapper for cron
 
