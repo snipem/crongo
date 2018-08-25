@@ -1,12 +1,15 @@
 package main
 
 import (
+	"io/ioutil"
 	"log"
+	"os"
 	"reflect"
 	"testing"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/stretchr/testify/assert"
 )
 
 func Test_listAllRuns(t *testing.T) {
@@ -114,6 +117,19 @@ func Test_runCommand(t *testing.T) {
 		t.Errorf("runCommand() = is not valid: %v", command)
 	}
 
+}
+
+func Test_runCommandAndStoreItIntoDatabase(t *testing.T) {
+	tempFile, _ := ioutil.TempFile("test/temp/", "runcommandandstoreitindatabase")
+
+	dbFile = tempFile.Name()
+	exitCode := runCommandAndStoreIntoDatabase("echo test")
+	assert.Equal(t, 0, exitCode, "The error code was not zero")
+	assert.FileExists(t, dbFile, "The newly created database file does not exist")
+	err := getCommandInfoFromDatabase(1)
+	assert.Nil(t, err, "Error is not nil")
+
+	os.Remove(dbFile)
 }
 
 // [{1 first 0xc4200b25a0 stdout first stderr first 1} {2 second 0xc4200b2660 stdout second stderr second 1} {3 second 0xc4200b2720 stdout second stderr second 0}], want
