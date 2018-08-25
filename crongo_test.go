@@ -132,5 +132,31 @@ func Test_runCommandAndStoreItIntoDatabase(t *testing.T) {
 	os.Remove(dbFile)
 }
 
+func Test_formatCommands(t *testing.T) {
+	randomDate, _ := time.Parse("2006-01-02 15:04:05", "2018-08-23 07:00:00")
+
+	commands := []command{
+		{
+			id:        1,
+			cmd:       "first",
+			date:      &randomDate,
+			stdout:    "stdout",
+			stderr:    "stderr",
+			errorCode: 1,
+		},
+		{
+			id:        2,
+			cmd:       "second",
+			date:      &randomDate,
+			stdout:    "stdout",
+			stderr:    "stderr",
+			errorCode: 1,
+		},
+	}
+	formattedString := formatCommands(commands)
+	assert.Contains(t, formattedString, "first")
+	assert.Contains(t, formattedString, "second")
+}
+
 // [{1 first 0xc4200b25a0 stdout first stderr first 1} {2 second 0xc4200b2660 stdout second stderr second 1} {3 second 0xc4200b2720 stdout second stderr second 0}], want
 // [{1 first 0xc4200b2400 stdout first stderr first 1} {2 second 0xc4200b2400 stdout second stderr second 1}]

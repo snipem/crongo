@@ -82,7 +82,7 @@ func listAllFailedRuns(limit int, filter string) []command {
 	return runStatement(stmt)
 }
 
-func printCommands(commands []command) {
+func formatCommands(commands []command) string {
 
 	table := uitable.New()
 	table.MaxColWidth = 50
@@ -100,7 +100,7 @@ func printCommands(commands []command) {
 	// paint all red status codes with a follow up zero green
 	out = strings.Replace(out, color.RedString(statusDot)+" 0", color.GreenString(statusDot)+" 0", -1)
 
-	fmt.Println(out)
+	return out
 }
 
 func runStatement(stmt string) []command {
@@ -219,7 +219,7 @@ func main() {
 					Usage: "list all runs",
 					Action: func(c *cli.Context) error {
 
-						printCommands(listAllRuns(limit, filter))
+						fmt.Println(formatCommands(listAllRuns(limit, filter)))
 						return nil
 					},
 					Flags: []cli.Flag{
@@ -240,7 +240,7 @@ func main() {
 					Name:  "failed",
 					Usage: "list all failed runs",
 					Action: func(c *cli.Context) error {
-						printCommands(listAllFailedRuns(limit, filter))
+						fmt.Println(formatCommands(listAllFailedRuns(limit, filter)))
 						return nil
 					},
 					Flags: []cli.Flag{
