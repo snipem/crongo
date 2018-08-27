@@ -120,7 +120,7 @@ func Test_runCommand(t *testing.T) {
 }
 
 func Test_runCommandAndStoreItIntoDatabase(t *testing.T) {
-	tempFile, err := ioutil.TempFile("test/temp/", "runcommandandstoreitindatabase")
+	tempFile, err := ioutil.TempFile("test/", "runcommandandstoreitindatabase")
 	if err != nil {
 		log.Fatal(err)
 	}
