@@ -122,14 +122,14 @@ func Test_runCommand(t *testing.T) {
 func Test_runCommandAndStoreItIntoDatabase(t *testing.T) {
 	tempFile, err := ioutil.TempFile("test/temp/", "runcommandandstoreitindatabase")
 	if err != nil {
-		log.Fatalf(err)
+		log.Fatal(err)
 	}
 
 	dbFile = tempFile.Name()
 	exitCode := runCommandAndStoreIntoDatabase("echo test")
 	assert.Equal(t, 0, exitCode, "The error code was not zero")
 	assert.FileExists(t, dbFile, "The newly created database file does not exist")
-	err := getCommandInfoFromDatabase(1)
+	err = getCommandInfoFromDatabase(1)
 	assert.Nil(t, err, "Error is not nil")
 
 	os.Remove(dbFile)
