@@ -122,7 +122,7 @@ func Test_runCommand(t *testing.T) {
 func Test_runCommandAndStoreItIntoDatabase(t *testing.T) {
 	tempFile, err := ioutil.TempFile("test/temp/", "runcommandandstoreitindatabase")
 	if err != nil {
-		log.Fatalf("Can't open temporary database file")
+		log.Fatalf(err)
 	}
 
 	dbFile = tempFile.Name()
