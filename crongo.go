@@ -69,7 +69,8 @@ func listAllRuns(limit int, filter string) []command {
 	if filter != "" {
 		filterAppendix = "where cmd like '%" + filter + "%'"
 	}
-	stmt := "select * from (select * from commands order by id DESC)  " + filterAppendix + " order by id ASC limit " + fmt.Sprint(limit) + ""
+	stmt := "select * from (select * from commands " + filterAppendix + " order by id DESC  limit " + fmt.Sprint(limit) + ") order by id ASC"
+	//select * from (select * from commands order by id DESC limit 5) order by id ASC
 	return runStatement(stmt)
 }
 
@@ -78,7 +79,7 @@ func listAllFailedRuns(limit int, filter string) []command {
 	if filter != "" {
 		filterAppendix = "and cmd like '%" + filter + "%'"
 	}
-	stmt := "select * from (select * from commands order by id DESC) where error_code > 0 " + filterAppendix + " order by id ASC limit " + fmt.Sprint(limit) + ""
+	stmt := "select * from (select * from commands where error_code > 0 " + filterAppendix + " order by id DESC limit " + fmt.Sprint(limit) + ") order by id ASC"
 	return runStatement(stmt)
 }
 
@@ -111,7 +112,14 @@ func runStatement(stmt string) []command {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	//TODO Add debug flag here
+	// log.Printf("Running stmt: %s", stmt)
+
 	rows, err := database.Query(stmt)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	for rows.Next() {
 		var c command
@@ -183,7 +191,7 @@ func purgeDatabase(numberOfEntriesToKeep int) {
 
 func main() {
 	app := cli.NewApp()
-	app.Version = "0.3.2"
+	app.Version = "0.3.3"
 
 	var limit int
 	var filter string
