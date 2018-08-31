@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"reflect"
+	"strconv"
 	"testing"
 	"time"
 
@@ -156,6 +157,23 @@ func Test_formatCommands(t *testing.T) {
 	formattedString := formatCommands(commands)
 	assert.Contains(t, formattedString, "first")
 	assert.Contains(t, formattedString, "second")
+}
+
+func Test_listAllFilesOfMany(t *testing.T) {
+	tempFile, _ := ioutil.TempFile("test/temp/", t.Name())
+	dbFile = tempFile.Name()
+
+	for index := 1; index < 50; index++ {
+		runCommandAndStoreIntoDatabase("echo " + strconv.Itoa(index))
+	}
+
+	commands := listAllRuns(10, "")
+	assert.Contains(t, commands[0].cmd, "echo 1")
+	assert.Contains(t, commands[1].cmd, "echo 2")
+	assert.Contains(t, commands[2].cmd, "echo 3")
+
+	// TODO Run this always
+	os.Remove(dbFile)
 }
 
 // [{1 first 0xc4200b25a0 stdout first stderr first 1} {2 second 0xc4200b2660 stdout second stderr second 1} {3 second 0xc4200b2720 stdout second stderr second 0}], want
