@@ -209,3 +209,12 @@ func Test_listAllFailedWithFilter(t *testing.T) {
 
 	assert.Contains(t, commands[0].cmd, "NOT_EXISTING_COMMAND_NVER_jfdhgjhdg 2")
 }
+
+func TestMain(m *testing.M) {
+	err := os.Mkdir(testFolder, 0755)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	os.Exit(m.Run())
+}
