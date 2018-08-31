@@ -210,11 +210,39 @@ func Test_listAllFailedWithFilter(t *testing.T) {
 	assert.Contains(t, commands[0].cmd, "NOT_EXISTING_COMMAND_NVER_jfdhgjhdg 2")
 }
 
-func TestMain(m *testing.M) {
-	err := os.Mkdir(testFolder, 0755)
-	if err != nil {
-		log.Fatal(err)
-	}
+func Test_purgeDatabase(t *testing.T) {
+	tempFile, _ := ioutil.TempFile(testFolder, t.Name())
+	dbFile = tempFile.Name()
 
+	for index := 1; index <= 20; index++ {
+		runCommandAndStoreIntoDatabase("echo " + strconv.Itoa(index))
+	}
+	commands := listAllRuns(20, "")
+	assert.Len(t, commands, 20)
+
+	purgeDatabase(10)
+
+	lessCommands := listAllRuns(20, "")
+	assert.Len(t, lessCommands, 10)
+}
+
+func exists(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return true, err
+}
+
+func TestMain(m *testing.M) {
+	if _, err := os.Stat(testFolder); os.IsNotExist(err) {
+		err := os.Mkdir(testFolder, 0755)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
 	os.Exit(m.Run())
 }
