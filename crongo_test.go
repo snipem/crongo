@@ -13,6 +13,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var testFolder = "test/temp/"
+
 func Test_listAllRuns(t *testing.T) {
 	dbFile = "test/crongo.db"
 
@@ -121,16 +123,13 @@ func Test_runCommand(t *testing.T) {
 }
 
 func Test_runCommandAndStoreItIntoDatabase(t *testing.T) {
-	tempFile, err := ioutil.TempFile("test/", "runcommandandstoreitindatabase")
-	if err != nil {
-		log.Fatal(err)
-	}
-
+	tempFile, _ := ioutil.TempFile(testFolder, t.Name())
 	dbFile = tempFile.Name()
+
 	exitCode := runCommandAndStoreIntoDatabase("echo test")
 	assert.Equal(t, 0, exitCode, "The error code was not zero")
 	assert.FileExists(t, dbFile, "The newly created database file does not exist")
-	err = getCommandInfoFromDatabase(1)
+	err := getCommandInfoFromDatabase(1)
 	assert.Nil(t, err, "Error is not nil")
 
 	os.Remove(dbFile)
@@ -163,7 +162,7 @@ func Test_formatCommands(t *testing.T) {
 }
 
 func Test_listAllFilesOfMany(t *testing.T) {
-	tempFile, _ := ioutil.TempFile("test/temp/", t.Name())
+	tempFile, _ := ioutil.TempFile(testFolder, t.Name())
 	dbFile = tempFile.Name()
 
 	for index := 1; index < 50; index++ {
