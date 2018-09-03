@@ -161,7 +161,7 @@ func runCommandAndStoreIntoDatabase(cmd string) (exitCode int) {
 }
 
 func prettyPrintCommand(c command) {
-	fmt.Printf("stdout:\n%v\nstderr:\n%v\nexit_code: %v", c.stdout, c.stderr, c.errorCode)
+	fmt.Printf("stdout:\n%v\nstderr:\n%v\nexit_code: %v\n", c.stdout, c.stderr, c.errorCode)
 }
 
 func getCommandInfoFromDatabase(id int) error {
