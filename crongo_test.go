@@ -9,6 +9,8 @@ import (
 	"testing"
 	"time"
 
+	"bou.ke/monkey"
+	"github.com/kami-zh/go-capturer"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/stretchr/testify/assert"
 )
@@ -228,6 +230,28 @@ func Test_purgeDatabase(t *testing.T) {
 
 	lessCommands := listAllRuns(numFilesBefore, "")
 	assert.Len(t, lessCommands, filesAfter)
+}
+
+func Test_runAndList(t *testing.T) {
+	tempFile, _ := ioutil.TempFile(testFolder, t.Name())
+	dbFile = tempFile.Name()
+
+	fakeExit := func(exitCode int) {
+		log.Printf("os.Exit called with %s", strconv.Itoa(exitCode))
+	}
+
+	patch := monkey.Patch(os.Exit, fakeExit)
+	argsRun := []string{"crongo", "run", "echo hello world"}
+	run(argsRun)
+
+	argsList := []string{"crongo", "list", "all"}
+
+	out := capturer.CaptureStdout(func() {
+		defer patch.Unpatch()
+		run(argsList)
+	})
+
+	assert.Contains(t, out, "echo hello world")
 }
 
 func exists(path string) (bool, error) {
