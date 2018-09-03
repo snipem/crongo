@@ -215,7 +215,7 @@ func Test_purgeDatabase(t *testing.T) {
 	dbFile = tempFile.Name()
 
 	numFilesBefore := 20
-	filesAfter := 10
+	numFilesAfter := 10
 
 	for index := 1; index <= numFilesBefore; index++ {
 		runCommandAndStoreIntoDatabase("echo " + strconv.Itoa(index))
@@ -223,10 +223,10 @@ func Test_purgeDatabase(t *testing.T) {
 	commands := listAllRuns(numFilesBefore, "")
 	assert.Len(t, commands, numFilesBefore)
 
-	purgeDatabase(filesAfter)
+	purgeDatabase(numFilesAfter)
 
 	lessCommands := listAllRuns(numFilesBefore, "")
-	assert.Len(t, lessCommands, filesAfter)
+	assert.Len(t, lessCommands, numFilesAfter)
 }
 
 func exists(path string) (bool, error) {
