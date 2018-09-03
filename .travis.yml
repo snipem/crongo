@@ -5,6 +5,6 @@ sudo: false
 before_install:
   - go get github.com/mattn/goveralls
   - go get bou.ke/monkey
-  - go get github.com/kami-zh/go-capture
+  - go get github.com/kami-zh/go-capturer
 script:
   - $GOPATH/bin/goveralls -service=travis-ci
