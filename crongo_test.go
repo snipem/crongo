@@ -281,6 +281,32 @@ func Test_runAndList(t *testing.T) {
 	assert.Contains(t, out, "echo hello world")
 }
 
+func Test_doNotLog(t *testing.T) {
+	tempFile, _ := ioutil.TempFile(testFolder, t.Name())
+	dbFile = tempFile.Name()
+
+	argsList := []string{"crongo", "list", "all"}
+
+	out := capturer.CaptureStderr(func() {
+		run(argsList)
+	})
+
+	assert.NotContains(t, out, "Accessing db in")
+}
+
+func Test_doLog(t *testing.T) {
+	tempFile, _ := ioutil.TempFile(testFolder, t.Name())
+	dbFile = tempFile.Name()
+
+	argsList := []string{"crongo", "--debug", "list", "all"}
+
+	out := capturer.CaptureStderr(func() {
+		run(argsList)
+	})
+
+	assert.Contains(t, out, "Accessing db in")
+}
+
 func exists(path string) (bool, error) {
 	_, err := os.Stat(path)
 	if err == nil {
