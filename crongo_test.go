@@ -223,7 +223,8 @@ func Test_purgeDatabase(t *testing.T) {
 	commands := listAllRuns(numFilesBefore, "")
 	assert.Len(t, commands, numFilesBefore)
 
-	purgeDatabase(filesAfter)
+	args := []string{"crongo", "purge", strconv.Itoa(filesAfter)}
+	run(args)
 
 	lessCommands := listAllRuns(numFilesBefore, "")
 	assert.Len(t, lessCommands, filesAfter)
