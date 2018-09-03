@@ -212,6 +212,33 @@ func Test_listAllFailedWithFilter(t *testing.T) {
 	assert.Contains(t, commands[0].cmd, "NOT_EXISTING_COMMAND_NVER_jfdhgjhdg 2")
 }
 
+func Test_getId(t *testing.T) {
+	tempFile, _ := ioutil.TempFile(testFolder, t.Name())
+	dbFile = tempFile.Name()
+
+	runCommandAndStoreIntoDatabase("echo show me in result")
+
+	// This should return the newst and not the oldest
+	commands := listAllRuns(10, "")
+
+	id := commands[0].id
+
+	args := []string{"crongo", "id", strconv.Itoa(id)}
+	run(args)
+
+	out := capturer.CaptureStdout(func() {
+		run(args)
+	})
+
+	assert.Equal(t, out, `stdout:
+show me in result
+
+stderr:
+
+exit_code: 0
+`)
+}
+
 func Test_purgeDatabase(t *testing.T) {
 	tempFile, _ := ioutil.TempFile(testFolder, t.Name())
 	dbFile = tempFile.Name()
