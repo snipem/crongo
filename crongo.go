@@ -161,7 +161,7 @@ func runCommandAndStoreIntoDatabase(cmd string) (exitCode int) {
 }
 
 func prettyPrintCommand(c command) {
-	fmt.Printf("stdout:\n%v\nstderr:\n%v\nexit_code: %v", c.stdout, c.stderr, c.errorCode)
+	fmt.Printf("stdout:\n%v\nstderr:\n%v\nexit_code: %v\n", c.stdout, c.stderr, c.errorCode)
 }
 
 func getCommandInfoFromDatabase(id int) error {
@@ -190,6 +190,11 @@ func purgeDatabase(numberOfEntriesToKeep int) {
 }
 
 func main() {
+	run(os.Args)
+}
+
+func run(args []string) {
+
 	app := cli.NewApp()
 	app.Version = "0.3.3"
 
@@ -317,7 +322,7 @@ func main() {
 	sort.Sort(cli.FlagsByName(app.Flags))
 	sort.Sort(cli.CommandsByName(app.Commands))
 
-	err := app.Run(os.Args)
+	err := app.Run(args)
 	if err != nil {
 		log.Fatal(err)
 	}

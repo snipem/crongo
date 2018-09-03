@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"bou.ke/monkey"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/stretchr/testify/assert"
 )
@@ -223,10 +224,33 @@ func Test_purgeDatabase(t *testing.T) {
 	commands := listAllRuns(numFilesBefore, "")
 	assert.Len(t, commands, numFilesBefore)
 
-	purgeDatabase(numFilesAfter)
+	args := []string{"crongo", "purge", strconv.Itoa(filesAfter)}
+	run(args)
 
 	lessCommands := listAllRuns(numFilesBefore, "")
 	assert.Len(t, lessCommands, numFilesAfter)
+}
+
+func Test_runAndList(t *testing.T) {
+	tempFile, _ := ioutil.TempFile(testFolder, t.Name())
+	dbFile = tempFile.Name()
+
+	fakeExit := func(exitCode int) {
+		log.Printf("os.Exit called with %s", strconv.Itoa(exitCode))
+	}
+
+	patch := monkey.Patch(os.Exit, fakeExit)
+	argsRun := []string{"crongo", "run", "echo hello world"}
+	run(argsRun)
+
+	argsList := []string{"crongo", "list", "all"}
+
+	out := capturer.CaptureStdout(func() {
+		defer patch.Unpatch()
+		run(argsList)
+	})
+
+	assert.Contains(t, out, "echo hello world")
 }
 
 func exists(path string) (bool, error) {
