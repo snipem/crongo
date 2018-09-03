@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"bou.ke/monkey"
+	"github.com/kami-zh/go-capturer"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/stretchr/testify/assert"
 )
@@ -224,7 +225,7 @@ func Test_purgeDatabase(t *testing.T) {
 	commands := listAllRuns(numFilesBefore, "")
 	assert.Len(t, commands, numFilesBefore)
 
-	args := []string{"crongo", "purge", strconv.Itoa(filesAfter)}
+	args := []string{"crongo", "purge", strconv.Itoa(numFilesAfter)}
 	run(args)
 
 	lessCommands := listAllRuns(numFilesBefore, "")
