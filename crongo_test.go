@@ -205,10 +205,12 @@ func Test_listAllFailedWithFilter(t *testing.T) {
 
 	runCommandAndStoreIntoDatabase("echo 1")
 	runCommandAndStoreIntoDatabase("NOT_EXISTING_COMMAND_NVER_jfdhgjhdg 2")
+	runCommandAndStoreIntoDatabase("NOT_EXISTING_SECOND_COMMAND_NVER_jfdhgjhdg 2")
 
 	// This should return the newst and not the oldest
-	commands := listAllRuns(10, "NOT_EXISTING_COMMAND_NVER_jfdhgjhdg")
+	commands := listAllFailedRuns(10, "NOT_EXISTING_COMMAND_NVER_jfdhgjhdg")
 
+	assert.Len(t, commands, 1)
 	assert.Contains(t, commands[0].cmd, "NOT_EXISTING_COMMAND_NVER_jfdhgjhdg 2")
 }
 
