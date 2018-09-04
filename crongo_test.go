@@ -261,6 +261,26 @@ func Test_purgeDatabase(t *testing.T) {
 	assert.Len(t, lessCommands, numFilesAfter)
 }
 
+func Test_purgeDefaultDatabase(t *testing.T) {
+	tempFile, _ := ioutil.TempFile(testFolder, t.Name())
+	dbFile = tempFile.Name()
+
+	numFilesBefore := 120
+	numFilesAfter := 100
+
+	for index := 1; index <= numFilesBefore; index++ {
+		runCommandAndStoreIntoDatabase("echo " + strconv.Itoa(index))
+	}
+	commands := listAllRuns(numFilesBefore, "")
+	assert.Len(t, commands, numFilesBefore)
+
+	args := []string{"crongo", "purge"}
+	run(args)
+
+	lessCommands := listAllRuns(numFilesBefore, "")
+	assert.Len(t, lessCommands, numFilesAfter)
+}
+
 func Test_runAndList(t *testing.T) {
 	tempFile, _ := ioutil.TempFile(testFolder, t.Name())
 	dbFile = tempFile.Name()
