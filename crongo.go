@@ -305,8 +305,6 @@ func run(args []string) {
 					purgeDatabase(100)
 				} else if numberOfEntriesToKeep, err := strconv.Atoi(c.Args().Get(0)); err == nil {
 					purgeDatabase(numberOfEntriesToKeep)
-				} else {
-					cli.NewExitError("Number of commands to keep", 1)
 				}
 				return nil
 			},
