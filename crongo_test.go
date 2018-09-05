@@ -303,6 +303,26 @@ func Test_runAndList(t *testing.T) {
 	assert.Contains(t, out, "echo hello world")
 }
 
+func Test_usageErrors(t *testing.T) {
+	tempFile, _ := ioutil.TempFile(testFolder, t.Name())
+	dbFile = tempFile.Name()
+
+	fakeExit := func(exitCode int) {
+		log.Printf("os.Exit called with %s", strconv.Itoa(exitCode))
+		assert.Equal(t, exitCode, 1)
+	}
+
+	patch := monkey.Patch(os.Exit, fakeExit)
+	argsRun := []string{"crongo", "run"}
+
+	out := capturer.CaptureStderr(func() {
+		defer patch.Unpatch()
+		run(argsRun)
+	})
+
+	assert.Equal(t, "Command missing", out)
+}
+
 func exists(path string) (bool, error) {
 	_, err := os.Stat(path)
 	if err == nil {
