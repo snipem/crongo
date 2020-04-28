@@ -1,9 +1,0 @@
-language: go
-sudo: false
-before_install:
-  - go get github.com/mattn/goveralls
-  - go get bou.ke/monkey
-  - go get github.com/kami-zh/go-capturer
-  - env GO111MODULE=on go mod download
-script:
-  - env GO111MODULE=on $GOPATH/bin/goveralls -service=travis-ci
