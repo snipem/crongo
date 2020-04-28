@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"reflect"
+	"runtime"
 	"strconv"
 	"testing"
 	"time"
@@ -287,6 +288,10 @@ func Test_runAndList(t *testing.T) {
 
 	fakeExit := func(exitCode int) {
 		log.Printf("os.Exit called with %s", strconv.Itoa(exitCode))
+	}
+
+	if runtime.GOOS == "darwin" {
+		t.Skip("Mocking os.Exit does not work on Mac")
 	}
 
 	patch := monkey.Patch(os.Exit, fakeExit)
